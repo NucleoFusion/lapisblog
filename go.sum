@@ -1,2 +1,4 @@
+github.com/golang-jwt/jwt/v5 v5.2.1 h1:OuVbFODueb089Lh128TAcimifWaLhJwVflnrgM17wHk=
+github.com/golang-jwt/jwt/v5 v5.2.1/go.mod h1:pqrtFR0X4osieyHYxtmOUWsAWrfe1Q5UVIyoH402zdk=
 github.com/orsinium-labs/enum v1.4.0 h1:3NInlfV76kuAg0kq2FFUondmg3WO7gMEgrPPrlzLDUM=
 github.com/orsinium-labs/enum v1.4.0/go.mod h1:Qj5IK2pnElZtkZbGDxZMjpt7SUsn4tqE5vRelmWaBbc=
