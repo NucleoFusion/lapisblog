@@ -11,19 +11,15 @@ func main() {
 	// fmt.Println("Listening at 5555.")
 	// http.ListenAndServe(":5555", mux)
 
-	payload, err := auth.CreatePayload(1, "Admin", -1)
+	payload := auth.CreatePayload(1, "User")
+
+	jwt := payload.CreateJWT()
+
+	s, err := jwt.EncodeJWT()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	JWT := auth.GetJWT(payload)
-
-	encrypted, err := auth.EncryptJWT(JWT)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	fmt.Println("ENCRYPTED", encrypted)
+	fmt.Println(s)
 }
