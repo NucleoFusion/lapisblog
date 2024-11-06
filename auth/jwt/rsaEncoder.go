@@ -6,7 +6,7 @@ import (
 )
 
 func GetKey() (*rsa.PrivateKey, error) {
-	key, err := rsa.GenerateKey(rand.Reader, 256)
+	key, err := rsa.GenerateKey(rand.Reader, 1028)
 	if err != nil {
 		return key, err
 	}

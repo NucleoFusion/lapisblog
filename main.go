@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"lapisblog/auth/jwt"
+	"lapisblog/auth"
 )
 
 func main() {
@@ -11,13 +11,19 @@ func main() {
 	// fmt.Println("Listening at 5555.")
 	// http.ListenAndServe(":5555", mux)
 
-	k, _ := jwt.GetKey()
+	payload, err := auth.CreatePayload(1, "Admin", -1)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 
-	msg, err := jwt.EncryptMsg([]byte("Hello"), k)
+	JWT := auth.GetJWT(payload)
 
-	fmt.Println(string(msg), err)
+	encrypted, err := auth.EncryptJWT(JWT)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 
-	decmsg, _ := jwt.DecryptMsg(msg, k)
-
-	fmt.Println(string(decmsg))
+	fmt.Println("ENCRYPTED", encrypted)
 }
