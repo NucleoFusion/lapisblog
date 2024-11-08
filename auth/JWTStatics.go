@@ -32,7 +32,7 @@ var DefaultHeader Header = Header{
 	Cty: "JSON",
 }
 
-const validity int64 = 60 * 60 * 12
+const validity int64 = 12 * 60 * 60
 
 func (payload *Payload) CreateJWT() *JWT {
 	return &JWT{
