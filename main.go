@@ -1,9 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"lapisblog/auth"
+	"lapisblog/database"
 )
+
+//TODO Profile Addition routes
+//TODO One-Time API Key Authentication
+//TODO JWT Auth Routes
 
 func main() {
 	// mux := routes.GetRoutesMux()
@@ -23,13 +28,26 @@ func main() {
 
 	// fmt.Println(st)
 
-	st := "eyJhbGciOiJTSEEyNTYiLCJ0eXAiOiJKV1MiLCJjdHkiOiJKU09OIn0.eyJJZCI6MSwiUm9sZSI6IlVzZXIiLCJDcmVhdGVkQXQiOjE3MzEwNjY5ODcsIlZhbGlkRm9yIjowfQ.TBpANxlHZp8dcf1LyKXhLeKL4OmlwVBtFxLc2qiHu3E"
-
-	s, err := auth.DecodeJWT(st)
+	db, err := db.ConnectToDB()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Println(s)
+	result, err := db.QueryContext(context.Background(), "SELECT * FROM users")
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	var (
+		id       int
+		username string
+		email    string
+		password string
+	)
+	for result.Next() {
+		result.Scan(&id, &username, &email, &password)
+		fmt.Println(id, username, email, password)
+	}
 }
