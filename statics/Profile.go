@@ -9,7 +9,7 @@ type Profile struct {
 	Email        string          `json:"email"`
 	BirthDate    int64           `json:"birthDate"`
 	Education    []Education     `json:"education"`
-	LinkedIn     Link            `json:"linkedin"`
+	LinkedIn     string          `json:"linkedin"`
 	OtherLinks   []Link          `json:"otherLinks"`
 	Description  string          `json:"description"`
 	Following    []UserReference `json:"following"`

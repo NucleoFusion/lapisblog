@@ -1,11 +1,14 @@
 package profileRoute
 
-import "net/http"
+import (
+	"database/sql"
+	"net/http"
+)
 
-func InitMux() *http.ServeMux {
+func InitMux(db *sql.DB) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	mux.Handle("POST /add", &addProfileStruct{})
+	mux.Handle("POST /add", &addProfileStruct{Db: db})
 
 	return mux
 }

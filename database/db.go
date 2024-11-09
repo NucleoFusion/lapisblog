@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -18,6 +19,8 @@ func ConnectToDB() (*sql.DB, error) {
 	if err != nil {
 		return db, err
 	}
+
+	fmt.Println("CONNECTED")
 
 	return db, nil
 }

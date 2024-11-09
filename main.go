@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	db "lapisblog/database"
 	"lapisblog/routes"
 	"net/http"
 )
@@ -11,7 +12,13 @@ import (
 //TODO JWT Auth Routes
 
 func main() {
-	mux := routes.GetRoutesMux()
+	db, err := db.ConnectToDB()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	mux := routes.GetRoutesMux(db)
 
 	fmt.Println("Listening at 5555.")
 	http.ListenAndServe(":5555", mux)

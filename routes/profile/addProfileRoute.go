@@ -15,7 +15,7 @@ import (
 )
 
 type addProfileStruct struct {
-	db *sql.DB
+	Db *sql.DB
 }
 
 func (s *addProfileStruct) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -33,9 +33,10 @@ func (s *addProfileStruct) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 	}
 
-	fmt.Println(profile)
-
 	data, _ := json.Marshal(profile)
+
+	go InsertIntoProfile(profile, s.Db)
+
 	io.Writer.Write(w, data)
 }
 
@@ -51,8 +52,7 @@ func DecodeBody(body *url.Values) (*statics.Profile, error) {
 		case "description":
 			prof.Description = val[0]
 		case "linkedin":
-			link := statics.NewLink("linkedin", val[0])
-			prof.LinkedIn = link
+			prof.LinkedIn = val[0]
 		case "birthDate":
 			dates := strings.Split(val[0], "/")
 			if len(dates) != 3 {
@@ -73,4 +73,27 @@ func DecodeBody(body *url.Values) (*statics.Profile, error) {
 	}
 
 	return &prof, nil
+}
+
+func InsertIntoProfile(profile *statics.Profile, db *sql.DB) {
+	var (
+		name        = ReturnNULL(profile.Name)
+		email       = ReturnNULL(profile.Email)
+		linkedin    = ReturnNULL(profile.LinkedIn)
+		description = ReturnNULL(profile.Description)
+		birthDate   = profile.BirthDate
+	)
+
+	_, err := db.Exec("INSERT INTO profile (name, email, linkedin, description, birthdate) VALUES ($1, $2, $3, $4, $5)", name, email, linkedin, description, birthDate)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+}
+
+func ReturnNULL(s string) string {
+	if s == "" {
+		return "NULL"
+	}
+
+	return s
 }
