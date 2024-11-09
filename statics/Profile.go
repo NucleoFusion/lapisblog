@@ -2,13 +2,12 @@ package statics
 
 import (
 	enums "lapisblog/statics/Enums"
-	"time"
 )
 
 type Profile struct {
 	Name         string          `json:"name"`
 	Email        string          `json:"email"`
-	BirthDate    time.Time       `json:"birthDate"`
+	BirthDate    int64           `json:"birthDate"`
 	Education    []Education     `json:"education"`
 	LinkedIn     Link            `json:"linkedin"`
 	OtherLinks   []Link          `json:"otherLinks"`
