@@ -15,4 +15,5 @@ type Profile struct {
 	Following    []UserReference `json:"following"`
 	Followers    []UserReference `json:"followers"`
 	TagsFollowed []enums.Tags    `json:"tags"`
+	Key          string          `json:"key"`
 }

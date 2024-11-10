@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"lapisblog/auth"
 	"lapisblog/statics"
 	"net/http"
 	"net/url"
@@ -33,10 +34,24 @@ func (s *addProfileStruct) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 	}
 
+	checkExists := make(chan bool, 1)
+	keyString := make(chan string, 1)
+	giveKey := make(chan string, 1)
+
+	go InsertIntoProfile(profile, s.Db, checkExists, giveKey)
+	go KeyBuffer(profile, keyString)
+
+	exists := <-checkExists
+	if exists {
+		io.WriteString(w, "user already exists")
+		return
+	}
+
+	key := <-keyString
+	giveKey <- key
+	profile.Key = key
+
 	data, _ := json.Marshal(profile)
-
-	go InsertIntoProfile(profile, s.Db)
-
 	io.Writer.Write(w, data)
 }
 
@@ -72,19 +87,32 @@ func DecodeBody(body *url.Values) (*statics.Profile, error) {
 		}
 	}
 
+	if prof.Email == "" {
+		return &prof, errors.New("email not provided")
+	}
+
 	return &prof, nil
 }
 
-func InsertIntoProfile(profile *statics.Profile, db *sql.DB) {
+func InsertIntoProfile(profile *statics.Profile, db *sql.DB, exists chan bool, keyString chan string) {
 	var (
 		name        = ReturnNULL(profile.Name)
-		email       = ReturnNULL(profile.Email)
+		email       = profile.Email
 		linkedin    = ReturnNULL(profile.LinkedIn)
 		description = ReturnNULL(profile.Description)
 		birthDate   = profile.BirthDate
 	)
 
-	_, err := db.Exec("INSERT INTO profile (name, email, linkedin, description, birthdate) VALUES ($1, $2, $3, $4, $5)", name, email, linkedin, description, birthDate)
+	res := db.QueryRow("SELECT * FROM profile WHERE email = $1", email)
+	if res.Scan() != sql.ErrNoRows {
+		exists <- true
+		return
+	}
+
+	exists <- false
+	key := <-keyString
+
+	_, err := db.Exec("INSERT INTO profile (name, email, linkedin, description, birthdate, key) VALUES ($1, $2, $3, $4, $5, $6)", name, email, linkedin, description, birthDate, key)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -96,4 +124,8 @@ func ReturnNULL(s string) string {
 	}
 
 	return s
+}
+
+func KeyBuffer(profile *statics.Profile, keyChan chan string) {
+	keyChan <- auth.GetKey(profile)
 }

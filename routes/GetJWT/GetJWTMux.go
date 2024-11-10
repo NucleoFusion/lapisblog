@@ -1,4 +1,4 @@
-package profileRoute
+package getjwt
 
 import (
 	"database/sql"
@@ -8,8 +8,7 @@ import (
 func InitMux(db *sql.DB) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	mux.Handle("POST /add", &addProfileStruct{Db: db})
-	mux.Handle("POST /update", &updateProfile{Db: db})
+	mux.Handle("GET /get", &GetJWT{Db: db})
 
 	return mux
 }
