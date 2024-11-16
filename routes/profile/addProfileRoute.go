@@ -103,8 +103,6 @@ func InsertIntoProfile(profile *statics.Profile, db *sql.DB, exists chan bool, k
 		birthDate   = profile.BirthDate
 	)
 
-	fmt.Println(profile)
-
 	res := db.QueryRow("SELECT * FROM profile WHERE email = $1", email)
 	if res.Scan() != sql.ErrNoRows {
 		exists <- true
