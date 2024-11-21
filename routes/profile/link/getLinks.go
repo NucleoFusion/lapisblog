@@ -52,8 +52,6 @@ func GetFromDB(db *sql.DB, key string, exists chan bool, dataChan chan *[]LinkDB
 	}
 	exists <- true
 
-	fmt.Println(id)
-
 	result, err := db.Query("SELECT * FROM links WHERE profile_id = $1", id)
 	if err != nil {
 		fmt.Println(err.Error())
