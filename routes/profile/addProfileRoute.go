@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"lapisblog/auth"
+	lapiserror "lapisblog/lapisErrors"
 	"lapisblog/statics"
 	"net/http"
 	"net/url"
@@ -43,7 +44,7 @@ func (s *addProfileStruct) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	exists := <-checkExists
 	if exists {
-		io.WriteString(w, "user already exists")
+		io.WriteString(w, lapiserror.UserExists)
 		return
 	}
 

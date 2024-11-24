@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	lapiserror "lapisblog/lapisErrors"
 	"net/http"
 	"strconv"
 )
@@ -19,7 +20,7 @@ func (s *RemoveLinkRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(r.PathValue("id"))
 	key := r.URL.Query().Get("key")
 	if key == "" {
-		io.WriteString(w, "key not found")
+		io.WriteString(w, lapiserror.NoKey)
 		return
 	}
 
@@ -30,7 +31,7 @@ func (s *RemoveLinkRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	RemoveLinkFromDB(s.Db, key, id, userExists, linkExists, linkData)
 
 	if !(<-userExists) {
-		io.WriteString(w, "invalid key, user not found")
+		io.WriteString(w, lapiserror.NoUser)
 		return
 	}
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	lapiserror "lapisblog/lapisErrors"
 	"net/http"
 )
 
@@ -37,7 +38,7 @@ func (s *addLink) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	key := r.URL.Query().Get("key")
 	if key == "" {
-		io.WriteString(w, "no key provided")
+		io.WriteString(w, lapiserror.NoKey)
 		return
 	}
 
@@ -47,7 +48,7 @@ func (s *addLink) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	InsertIntoLinks(name, val, key, s.Db, exists, userChan)
 
 	if !(<-exists) {
-		io.WriteString(w, "user not found")
+		io.WriteString(w, lapiserror.NoUser)
 		return
 	}
 

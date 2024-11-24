@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	lapiserror "lapisblog/lapisErrors"
 	"lapisblog/statics"
 	"net/http"
 )
@@ -43,7 +44,7 @@ func (s *updateProfile) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	exists := <-checkExists
 	if !exists {
-		io.WriteString(w, "user doesnt exists")
+		io.WriteString(w, lapiserror.NoUser)
 		return
 	}
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	lapiserror "lapisblog/lapisErrors"
 	"net/http"
 )
 
@@ -23,7 +24,7 @@ func (s *GetLinkRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	key := r.URL.Query().Get("key")
 	if key == "" {
-		io.WriteString(w, "key not found")
+		io.WriteString(w, lapiserror.NoKey)
 		return
 	}
 
@@ -33,7 +34,7 @@ func (s *GetLinkRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	go GetFromDB(s.Db, key, exists, dataChan)
 
 	if !(<-exists) {
-		io.WriteString(w, "no user with given key")
+		io.WriteString(w, lapiserror.NoUser)
 		return
 	}
 
