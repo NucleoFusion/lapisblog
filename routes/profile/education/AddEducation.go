@@ -120,8 +120,6 @@ func DecodeBody(edu *statics.Education, body *url.Values, decodeError chan error
 		}
 	}
 
-	fmt.Println(edu)
-
 	if edu.DegreeSpecialization == "" || edu.Grade == float32(0) || edu.DegreeType == "" || edu.GradeSystem == "" {
 		decodeError <- errors.New(lapiserror.MissingParams)
 		decodeDone <- true
