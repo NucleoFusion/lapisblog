@@ -8,5 +8,7 @@ import (
 func InitMux(db *sql.DB) *http.ServeMux {
 	mux := http.NewServeMux()
 
+	mux.Handle("POST /add/{tag}", &addTagsRoute{Db: db})
+
 	return mux
 }
