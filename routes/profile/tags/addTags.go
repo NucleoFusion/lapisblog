@@ -15,9 +15,8 @@ type addTagsRoute struct {
 }
 
 type TagResponse struct {
-	Id     int    `json:"id"`
-	UserId int    `json:"userId"`
-	Tag    string `json:"tag"`
+	UserId int      `json:"userId"`
+	Tags   []string `json:"tags"`
 }
 
 func (s *addTagsRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -39,12 +38,18 @@ func (s *addTagsRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Declaring channel to communicate with InsertIntoDB Goroutine
 	userExists := make(chan bool, 1)
+	tagExists := make(chan bool, 1)
 	getResp := make(chan *TagResponse, 1)
 
-	InsertIntoDB(s.Db, key, tag, userExists, getResp)
+	go InsertIntoDB(s.Db, key, tag, userExists, tagExists, getResp)
 
 	if !(<-userExists) {
 		io.WriteString(w, lapiserror.NoUser)
+		return
+	}
+
+	if <-tagExists {
+		io.WriteString(w, lapiserror.TagExists)
 		return
 	}
 
@@ -55,9 +60,9 @@ func (s *addTagsRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	io.Writer.Write(w, data)
 }
 
-func InsertIntoDB(db *sql.DB, key string, tag enums.Tags, userExists chan bool, getResp chan *TagResponse) {
+func InsertIntoDB(db *sql.DB, key string, tag enums.Tags, userExists chan bool, tagExists chan bool, getResp chan *TagResponse) {
 	var id int
-	resp := TagResponse{}
+	resp := TagResponse{UserId: id, Tags: []string{}}
 
 	res := db.QueryRow("SELECT (id) FROM profile WHERE key = $1", key)
 
@@ -72,9 +77,38 @@ func InsertIntoDB(db *sql.DB, key string, tag enums.Tags, userExists chan bool, 
 	}
 	userExists <- true
 
-	//Adding Tag to DB
-	result := db.QueryRow("INSERT INTO tags(user_id, tag) VALUES ($1,$2) RETURNING *", id, tag)
-	result.Scan(&resp.Id, &resp.UserId, &resp.Tag)
+	//Getting Existing Tags from DB
+	result, err := db.Query("SELECT (tag) FROM tags WHERE user_id = $1", id)
+	if err != nil {
+		fmt.Println(err.Error())
+		tagExists <- false
+		getResp <- &resp
+		return
+	}
 
+	for result.Next() {
+		var tagName string
+
+		err := result.Scan(&tagName)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
+		//Checking whether this tag is the same as the one we have to add
+		if tagName == string(tag) {
+			tagExists <- true
+			return
+		}
+
+		resp.Tags = append(resp.Tags, tagName)
+	}
+	tagExists <- false
+
+	//Adding the Current Tag
+	resp.Tags = append(resp.Tags, string(tag))
 	getResp <- &resp
+
+	//Adding Tag to DB
+	db.Exec("INSERT INTO tags(user_id, tag) VALUES ($1,$2) RETURNING *", id, tag)
 }
