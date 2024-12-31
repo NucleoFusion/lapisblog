@@ -74,7 +74,7 @@ func RemoveFromDB(db *sql.DB, key string, eduId int64, edu *EducationDBResp, use
 	userExists <- true
 
 	//Deleting From DB
-	res = db.QueryRow("DELETE FROM education WHERE id = $1 RETURNING *", eduId)
+	res = db.QueryRow("DELETE FROM education WHERE id = $1 AND profile_id = $2 RETURNING *", eduId, id)
 	err := res.Scan(&edu.Id, &edu.ProfileId, &edu.DegreeType, &edu.DegreeSpecialization, &edu.GradeSystem, &edu.Grade)
 	if err == sql.ErrNoRows {
 		eduFound <- false

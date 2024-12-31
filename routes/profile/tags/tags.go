@@ -10,6 +10,7 @@ func InitMux(db *sql.DB) *http.ServeMux {
 
 	mux.Handle("POST /add/{tag}", &addTagsRoute{Db: db})
 	mux.Handle("GET /get", &GetTags{Db: db})
+	mux.Handle("POST /remove/{id}", &RemoveTagRoute{Db: db})
 
 	return mux
 }

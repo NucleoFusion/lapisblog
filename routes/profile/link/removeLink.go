@@ -58,7 +58,7 @@ func RemoveLinkFromDB(db *sql.DB, key string, id int, userExists chan bool, link
 
 	var profID int
 
-	linkRes := db.QueryRow("SELECT * FROM links WHERE id = $1", id)
+	linkRes := db.QueryRow("SELECT * FROM links WHERE id = $1 AND profile_id = $2", id, profID)
 	err := linkRes.Scan(&resp.Id, &profID, &resp.LinkName, &resp.LinkValue)
 	if err == sql.ErrNoRows {
 		fmt.Println(err)
